@@ -3,10 +3,19 @@ import java.nio.file.*;
 import java.util.regex.*;
 import java.util.*;
 
+/**
+ * The Reader class reads email files from a given folder path, extracts sender and recipient information,
+ * and stores the information in sets of people and edges.
+ */
 public class Reader {
     private Set<String> people;
     private Set<String[]> edges;
 
+    /**
+     * Constructs a Reader object with the specified folder path and initializes the people and edges sets.
+     *
+     * @param path the path of the folder containing email files
+     */
     public Reader(String path) {
         this.people = new HashSet<>();
         this.edges = new HashSet<>();
@@ -14,11 +23,16 @@ public class Reader {
         readEmails(folder);
     }
 
+    /**
+     * Recursively reads email files from the given folder and extracts sender and recipient information.
+     *
+     * @param folder the path of the folder to read
+     */
     private void readEmails(Path folder) {
         try (DirectoryStream<Path> files = Files.newDirectoryStream(folder)) {
             for (Path file : files) {
                 if (Files.isDirectory(file)) {
-                    readEmails(file); // recursively process subfolders
+                    readEmails(file); // Recursively process subfolders
                 } else {
                     Map<String, List<String>> emailData = extractEmailData(file);
                     List<String> senders = emailData.get("sender");
@@ -38,6 +52,14 @@ public class Reader {
             e.printStackTrace();
         }
     }
+
+    /**
+     * Extracts sender and recipient information from the given email file.
+     * Uses Pattern Matcher and regex to find the emails given the line starting points: From, To, Cc, Bcc.
+     *
+     * @param emailFile the path of the email file to extract data from
+     * @return a map containing the sender and recipient information
+     */
     private Map<String, List<String>> extractEmailData(Path emailFile) {
         Map<String, List<String>> emailData = new HashMap<>();
         emailData.put("sender", new ArrayList<>());
@@ -75,6 +97,12 @@ public class Reader {
         return emailData;
     }
 
+    /**
+     * Adds an edge between two people to the edges set.
+     *
+     * @param person1 the first person
+     * @param person2 the second person
+     */
     private void addEdge(String person1, String person2) {
         if (person1 != null && person2 != null && !person1.equals(person2)) {
             String[] edge = new String[]{person1, person2};
@@ -86,10 +114,20 @@ public class Reader {
         }
     }
 
+    /**
+     * Returns the set of people.
+     *
+     * @return the set of people
+     */
     public Set<String> getPeople() {
         return people;
     }
 
+    /**
+     * Returns the set of edges.
+     *
+     * @return the set of edges
+     */
     public Set<String[]> getEdges() {
         return edges;
     }
